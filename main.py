@@ -100,7 +100,7 @@ async def call_ws(websocket: WebSocket, room_id: str, client_id: str):
     client = manager.add_client(room_id, client_id, websocket)
 
     # Broadcast the room peer list when a new client joins.
-    await manager.broadcast_peer_lists(room_id)
+    await manager.broadcast_peer_list(room_id)
 
     try:
         while True:
@@ -111,7 +111,7 @@ async def call_ws(websocket: WebSocket, room_id: str, client_id: str):
             if message_type == "register":
                 username = message.get("username", "unknown")
                 manager.update_username(room_id, client_id, username)
-                await manager.broadcast_peer_lists(room_id)
+                await manager.broadcast_peer_list(room_id)
             elif message_type in {"offer", "answer", "ice-candidate", "leave"}:
                 await relay_to_peer(room_id, message)
     except WebSocketDisconnect:
@@ -133,7 +133,7 @@ async def call_ws(websocket: WebSocket, room_id: str, client_id: str):
                 }
                 for peer_id, peer in list(room.items()):
                     await manager._safe_send_json({**leave_message, "target": peer_id}, peer.websocket)
-                await manager.broadcast_peer_lists(room_id)
+                await manager.broadcast_peer_list(room_id)
 
 
 
